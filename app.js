@@ -10,16 +10,10 @@ const SOS_CHARACTERISTIC_UUID = '12345678-1234-5678-1234-56789abcdef1'; // Examp
 
 // SOS Code Definitions (Map your 10 codes here)
 const SOS_CODES = {
-    '1': { desc: 'IR x2 + Light Press (Help Needed)', severity: 'info' },
-    '2': { desc: 'IR x2 + Heavy Press (Urgent Assistance)', severity: 'warning' },
-    '3': { desc: 'IR x3 + Light Press (Medical Issue)', severity: 'warning' },
-    '4': { desc: 'IR x3 + Heavy Press (Critical Medical Event)', severity: 'critical' },
-    '5': { desc: 'Long FSR + IR x1 (Security Threat)', severity: 'critical' },
-    '6': { desc: 'Rapid IR + FSR Light (Lost / Need Directions)', severity: 'info' },
-    '7': { desc: 'Rapid IR + FSR Heavy (Fall Detected)', severity: 'critical' },
-    '8': { desc: 'Sustained Light Press (Checking In)', severity: 'info' },
-    '9': { desc: 'Sustained Heavy Press (Duress / Forced)', severity: 'critical' },
-    '10': { desc: 'Complex Gesture Sequence (Custom Alert)', severity: 'warning' }
+    '1': { desc: 'Police Call', severity: 'critical' },
+    '2': { desc: 'Family Member Call', severity: 'warning' },
+    '3': { desc: 'GPS to Family', severity: 'info' },
+    '4': { desc: 'Phone Alert (Alarm) 🚨', severity: 'critical' }
 };
 
 // --- STATE ---
@@ -61,7 +55,7 @@ async function toggleConnection() {
 async function connectDevice() {
     try {
         updateUIState('connecting');
-        
+
         // Request device granting access to the specific service UUID
         bluetoothDevice = await navigator.bluetooth.requestDevice({
             filters: [{ services: [ESP32_SERVICE_UUID] }],
@@ -128,10 +122,10 @@ function handleNotifications(event) {
     // Assuming UTF-8 String representation of the code ('1', '2', etc.)
     const decoder = new TextDecoder('utf-8');
     const sosCodeRaw = decoder.decode(value).trim();
-    
+
     // Fallback: If ESP32 sends raw bytes (e.g., uint8t value = 5)
     // const sosCodeRaw = value.getUint8(0).toString();
-    
+
     console.log(`Received SOS Code: ${sosCodeRaw}`);
     processSOSCode(sosCodeRaw);
 }
@@ -140,7 +134,7 @@ function handleNotifications(event) {
 
 function processSOSCode(code) {
     const sosData = SOS_CODES[code] || { desc: `Unknown Code Received (${code})`, severity: 'info' };
-    
+
     // Create event object
     const eventObj = {
         code: code,
@@ -148,13 +142,13 @@ function processSOSCode(code) {
         severity: sosData.severity,
         timestamp: new Date()
     };
-    
+
     eventHistory.unshift(eventObj); // Add to beginning of array
-    
+
     // Update UI
     updateActivePanel(eventObj);
     renderHistory();
-    
+
     // Reset the active panel after 10 seconds of inactivity
     clearTimeout(window.resetTimer);
     window.resetTimer = setTimeout(() => {
@@ -167,8 +161,8 @@ function processSOSCode(code) {
 function updateUIState(state) {
     statusDot.className = 'dot';
     statusDot.classList.add(state);
-    
-    switch(state) {
+
+    switch (state) {
         case 'connected':
             statusText.textContent = 'Connected';
             btnText.textContent = 'Disconnect';
@@ -191,17 +185,17 @@ function updateUIState(state) {
 function updateActivePanel(event) {
     signalIdle.classList.add('hidden');
     signalActive.classList.remove('hidden');
-    
+
     // Remove previous severity classes
     signalActive.classList.remove('severity-info', 'severity-warning', 'severity-critical');
-    
+
     // Apply new data
     activeSosCode.textContent = `SOS ${event.code}`;
     activeSosDesc.textContent = event.desc;
-    
+
     severityBadge.textContent = event.severity.toUpperCase();
     severityBadge.className = `severity-badge ${event.severity}`;
-    
+
     // Apply classes for styling/animations
     signalActive.classList.add(`severity-${event.severity}`);
 }
@@ -220,23 +214,23 @@ function renderHistory() {
         historyList.innerHTML = '';
         return;
     }
-    
+
     emptyHistory.style.display = 'none';
     historyList.innerHTML = '';
-    
+
     eventHistory.forEach((event, index) => {
         const li = document.createElement('li');
         li.className = 'history-item';
         li.style.animationDelay = `${index * 0.05}s`;
-        
+
         const timeStr = event.timestamp.toLocaleTimeString([], { hour12: false });
-        
+
         li.innerHTML = `
             <span class="history-time">${timeStr}</span>
             <span class="history-code text-${event.severity}">SOS ${event.code}</span>
             <span class="history-desc">${event.desc}</span>
         `;
-        
+
         historyList.appendChild(li);
     });
 }
@@ -250,19 +244,19 @@ function clearHistory() {
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     let icon = 'info';
     if (type === 'error') icon = 'error_outline';
     if (type === 'success') icon = 'check_circle';
     if (type === 'warning') icon = 'warning_amber';
-    
+
     toast.innerHTML = `
         <span class="material-icons">${icon}</span>
         <span>${message}</span>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         toast.style.animation = 'toastSlideOut 0.3s ease forwards';
