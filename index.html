@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS Receiver Dashboard</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="dashboard-header">
+            <div class="brand">
+                <span class="material-icons brand-icon">sensors</span>
+                <h1>Micro-Gesture SOS</h1>
+            </div>
+            <div class="connection-control">
+                <div class="status-indicator">
+                    <div id="status-dot" class="dot disconnected"></div>
+                    <span id="status-text">Disconnected</span>
+                </div>
+                <button id="connect-btn" class="btn primary">
+                    <span class="material-icons">bluetooth</span>
+                    <span id="btn-text">Connect ESP32</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <!-- Active SOS Panel -->
+            <section class="panel sos-display-panel">
+                <div class="panel-header">
+                    <h2>Active Signal</h2>
+                    <span class="severity-badge" id="severity-badge">None</span>
+                </div>
+                <div class="active-signal-container" id="active-signal-container">
+                    <div class="signal-idle" id="signal-idle">
+                        <span class="material-icons idle-icon">shield</span>
+                        <p>Monitoring for Gestures...</p>
+                    </div>
+                    <div class="signal-active hidden" id="signal-active">
+                        <div class="pulse-ring"></div>
+                        <h1 id="active-sos-code">--</h1>
+                        <p class="signal-description" id="active-sos-desc">Waiting for signal</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Event History Panel -->
+            <section class="panel event-history-panel">
+                <div class="panel-header">
+                    <h2>Event History</h2>
+                    <button class="btn icon-btn" id="clear-btn" title="Clear History">
+                        <span class="material-icons">delete_sweep</span>
+                    </button>
+                </div>
+                <div class="history-list-container">
+                    <ul id="history-list" class="history-list">
+                        <!-- History items injected here via JS -->
+                    </ul>
+                    <div class="empty-state" id="empty-history">
+                        <span class="material-icons">history</span>
+                        <p>No events recorded yet</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Toast Notifications for errors/alerts -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
